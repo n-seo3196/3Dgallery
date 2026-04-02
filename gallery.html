@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FreeSchool 3D Gallery (デモ版)</title>
+    
+    <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
+    
+    <style>
+        /* ホワイトテーマのベース設定 */
+        body {
+            margin: 0;
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            background-color: #f8fafc; /* 優しい白背景 */
+            color: #333;
+        }
+        header {
+            background-color: #ffffff;
+            padding: 20px 40px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        h1 { margin: 0; font-size: 1.5rem; color: #1e293b; }
+        .container { max-width: 1000px; margin: 40px auto; padding: 0 20px; }
+
+        /* アップロード（搬入口）エリア */
+        .upload-area {
+            background-color: #ffffff;
+            border: 2px dashed #cbd5e1;
+            border-radius: 16px;
+            padding: 40px;
+            text-align: center;
+            margin-bottom: 40px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .upload-area:hover {
+            border-color: #3b82f6;
+            background-color: #f0f9ff;
+        }
+        .upload-icon { font-size: 3rem; margin-bottom: 10px; }
+
+        /* ギャラリー一覧（カード） */
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 30px;
+        }
+        .card {
+            background-color: #ffffff;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+            transition: transform 0.3s, box-shadow 0.3s;
+            cursor: pointer;
+        }
+        .card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 24px rgba(0,0,0,0.08);
+        }
+        .card-image {
+            height: 200px;
+            background-color: #f1f5f9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+        }
+        .card-info { padding: 20px; }
+        .card-title { margin: 0 0 5px 0; font-size: 1.2rem; }
+        .card-author { color: #64748b; font-size: 0.9rem; margin: 0 0 15px 0; }
+        .reactions { display: flex; gap: 10px; }
+        .reaction-btn {
+            background: #f1f5f9; border: none; border-radius: 20px;
+            padding: 6px 12px; cursor: pointer; transition: background 0.2s;
+        }
+        .reaction-btn:hover { background: #e2e8f0; }
+
+        /* 詳細画面（モーダル） */
+        .modal-overlay {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255, 255, 255, 0.95); z-index: 1000;
+            justify-content: center; align-items: center;
+        }
+        .modal-content {
+            width: 90%; max-width: 900px; height: 80vh;
+            background: #ffffff; border-radius: 16px;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.1);
+            display: flex; flex-direction: column; position: relative;
+            overflow: hidden;
+        }
+        .close-btn {
+            position: absolute; top: 15px; right: 20px; font-size: 2rem;
+            background: none; border: none; cursor: pointer; color: #94a3b8; z-index: 10;
+        }
+
+        /* 🌟 魔法のタグのスタイル 🌟 */
+        model-viewer {
+            width: 100%; height: 100%;
+            background-color: #f8fafc; outline: none;
+        }
+
+        .modal-info {
+            padding: 20px 30px; background: #ffffff;
+            border-top: 1px solid #e2e8f0;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>🏛️ FreeSchool 3D Gallery</h1>
+        <div style="color: #64748b; font-size: 0.9rem;">ログイン中: ゲスト</div>
+    </header>
+
+    <div class="container">
+        <div class="upload-area" onclick="alert('ここにBlockbenchの .glb ファイルをドラッグ＆ドロップしてアップします！')">
+            <div class="upload-icon">📥</div>
+            <h2 style="margin:0 0 10px 0; font-size: 1.2rem;">新しい作品を展示する</h2>
+            <p style="margin:0; color: #64748b;">ファイル(.glb)をここにドロップ</p>
+        </div>
+
+        <div class="gallery-grid">
+            <div class="card" onclick="openModal()">
+                <div class="card-image">🤖</div>
+                <div class="card-info">
+                    <h3 class="card-title">宇宙飛行士ロボ</h3>
+                    <p class="card-author">作：たろう丸</p>
+                    <div class="reactions">
+                        <button class="reaction-btn" onclick="event.stopPropagation(); alert('いいね！を送りました')">👍 12</button>
+                        <button class="reaction-btn" onclick="event.stopPropagation(); alert('最高！を送りました')">✨ 5</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card" style="opacity: 0.6;">
+                <div class="card-image">🏠</div>
+                <div class="card-info">
+                    <h3 class="card-title">秘密の基地</h3>
+                    <p class="card-author">作：Yuu</p>
+                    <div class="reactions"><button class="reaction-btn">👍 8</button></div>
+                </div>
+            </div>
+            
+            <div class="card" style="opacity: 0.6;">
+                <div class="card-image">🗡️</div>
+                <div class="card-info">
+                    <h3 class="card-title">伝説の剣</h3>
+                    <p class="card-author">作：勇者A</p>
+                    <div class="reactions"><button class="reaction-btn">👍 24</button></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="myModal">
+        <div class="modal-content">
+            <button class="close-btn" onclick="closeModal()">×</button>
+            
+            <model-viewer 
+                src="https://modelviewer.dev/shared-assets/models/Astronaut.glb" 
+                camera-controls 
+                auto-rotate 
+                ar
+                shadow-intensity="1">
+            </model-viewer>
+            
+            <div class="modal-info">
+                <div>
+                    <h2 style="margin: 0 0 5px 0;">宇宙飛行士ロボ</h2>
+                    <p style="margin: 0; color: #64748b;">作：たろう丸</p>
+                </div>
+                <button class="reaction-btn" style="font-size: 1.1rem; padding: 10px 20px;">👍 いいね！</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 画面を開いたり閉じたりするスクリプト
+        function openModal() {
+            document.getElementById('myModal').style.display = 'flex';
+        }
+        function closeModal() {
+            document.getElementById('myModal').style.display = 'none';
+        }
+    </script>
+</body>
+</html>
